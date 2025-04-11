@@ -1,21 +1,17 @@
-# Python
+# Python build artifacts
 __pycache__/
-*.py[cod]
+*.pyc
 *.pyo
 *.pyd
 *.spec
 
-# Flask environment
-.env
-
-# PyInstaller
+# Build folders
 build/
 dist/
 
-# Electron
-node_modules/
-*.log
+# Executables
+*.exe
+*.zip
 
-# OS
-.DS_Store
-Thumbs.db
+# Envs
+.env
