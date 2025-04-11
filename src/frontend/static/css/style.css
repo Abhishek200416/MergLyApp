@@ -1,0 +1,698 @@
+/* ======== Base Reset & Global Styles ======== */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    letter-spacing: 1px;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background: #EBFDFC;
+    color: #333;
+    scroll-behavior: smooth;
+    /* Optional: a minimum viewport width to lock in design on very small devices */
+    min-width: 95%;
+}
+
+
+/* ======== Header with Logo & Tabs ======== */
+
+.header {
+    background-color: transparent;
+    padding: 0px 20px 7px;
+    text-align: center;
+    position: relative;
+}
+
+.logo {
+    width: 370px;
+    position: absolute;
+    left: 62px;
+    top: 62px;
+    transition: width 0.3s, top 0.3s, left 0.3s;
+}
+
+.nav-tabs {
+    display: inline-block;
+    background: #fff;
+    border-radius: 45px;
+    padding: 13px;
+    margin-top: 10.5%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 45px;
+    cursor: pointer;
+    color: #55555581;
+    font-size: 23px;
+    margin: 0 3px;
+    transition: background 0.3s;
+}
+
+.tab-btn:hover {
+    background: #00AFA5;
+    color: #ffffff;
+}
+
+.tab-btn.active {
+    background: #1050AD;
+    color: #fff;
+}
+
+
+/* ======== Main Content ======== */
+
+main {
+    width: 88.6%;
+    margin: 0 auto 5px;
+}
+
+.screen-title {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.screen-subtitle {
+    font-size: 1rem;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #555;
+}
+
+.tab-content {
+    display: none;
+    margin-bottom: 30px;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+
+/* ======== Merge Container ======== */
+
+.merge-container {
+    background: transparent;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 90px;
+    margin-top: 44px;
+}
+
+.language-col {
+    flex: 1;
+    min-width: 300px;
+    padding: 35px 35px;
+    border-radius: 14px;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.language-col h2 {
+    margin-bottom: 15px;
+    font-size: 22px;
+    margin-left: 4px;
+}
+
+.language-col textarea {
+    width: 100%;
+    font-family: 'Roboto', sans-serif;
+    min-height: 360px;
+    font-size: 21px;
+    padding: 24px 28px;
+    font-weight: 500;
+    border: 1px solid #b0b0b0;
+    border-radius: 14px;
+    resize: vertical;
+    transition: border 0.3s ease;
+    outline: none;
+}
+
+
+/* Disable focus/active border effect */
+
+.language-col textarea:focus,
+.language-col textarea:active {
+    border: 1px solid #b0b0b0;
+}
+
+
+/* While typing (has content) */
+
+.language-col textarea.typing {
+    border: 1px solid #ffffff;
+    /* white border */
+}
+
+.drop-area {
+    border: 2px dashed #ccc;
+    border-radius: 9px;
+    padding: 25px;
+    margin-top: 15px;
+    text-align: center;
+    background: #ffffff;
+    transition: background 0.3s ease;
+    cursor: pointer;
+}
+
+.drop-area.dragover {
+    background: #d3ecff;
+}
+
+.drop-area p {
+    color: #66666699;
+    font-size: 1.3rem;
+    text-align: center;
+}
+
+.drop-area input[type="file"] {
+    display: none;
+}
+
+.merge-center {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    row-gap: 14pc;
+}
+
+.btn-swap {
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-top-color: #007acc;
+    border-radius: 50%;
+    margin-top: -38pc;
+}
+
+.btn-swap img {
+    width: 40px;
+    height: 40px;
+    transition: transform 0.6s;
+    border-radius: 50%;
+    content: url("/static/assets/Swap.svg");
+}
+
+.btn-swap:active img {
+    content: url("/static/assets/Swap_Blue.svg");
+}
+
+.bswap {
+    margin-top: -16.7pc;
+}
+
+.btn-merge {
+    background: #1346b7;
+    color: #fff;
+    margin-top: 7pc;
+    position: fixed;
+    border: none;
+    border-radius: 45px;
+    padding: 12px 75px;
+    font-size: 25px;
+    cursor: pointer;
+    box-shadow: 2px 1px 7px rgba(0, 0, 0, 0.4);
+    transition: background 0.3s, transform 0.2s;
+}
+
+.btn-merge:hover {
+    background: #3d77f4;
+    transform: scale(1.02);
+}
+
+
+/* ======== Translated Container ======== */
+
+.trans-container {
+    background: transparent;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 90px;
+    margin-top: 18px;
+}
+
+.trans-col {
+    flex: 1;
+    min-width: 300px;
+    padding: 35px 35px;
+    border-radius: 14px;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.trans-col h2 {
+    margin-bottom: 15px;
+    font-size: 22px;
+    margin-left: 4px;
+}
+
+.btn-translate {
+    background: #1346b7;
+    color: #fff;
+    margin-top: 6.9pc;
+    border: none;
+    border-radius: 45px;
+    padding: 12px 37px;
+    font-size: 25px;
+    cursor: pointer;
+    position: fixed;
+    box-shadow: 2px 1px 7px rgba(0, 0, 0, 0.4);
+    transition: background 0.3s, transform 0.2s;
+}
+
+.btn-translate:hover {
+    background: #3d77f4;
+    transform: scale(1.02);
+}
+
+
+/* Container for dropdown */
+
+.language-dropdown {
+    position: relative;
+    width: 250px;
+    font-family: 'Roboto', sans-serif;
+    margin-left: 15px;
+    margin-top: -3px;
+    margin-bottom: 6px;
+}
+
+
+/* Search input styling */
+
+.language-dropdown input[type="text"] {
+    width: 100%;
+    padding: 6px 10px 6px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+    font-size: 20px;
+    margin-top: 2px;
+}
+
+
+/* Dropdown list container */
+
+.language-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+    display: none;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    z-index: 1000;
+}
+
+
+/* Individual list items */
+
+.language-list li {
+    padding: 10px;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+
+/* Hover effect for list items */
+
+.language-list li:hover {
+    background-color: #f0f0f0;
+}
+
+.dr {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+
+/* Wrap right-side elements together */
+
+.right-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: -8px;
+    /* space between refresh and dropdown */
+}
+
+
+/* Button styles */
+
+.btn-refresh {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    outline: none;
+}
+
+
+/* Optional click animation */
+
+.btn-refresh:active img {
+    transform: rotate(360deg);
+    transition: transform 0.4s;
+}
+
+
+/* Image size */
+
+.btn-refresh img {
+    width: 30.5px;
+    height: 30.5px;
+}
+
+.trans-col textarea {
+    width: 100%;
+    font-family: 'Roboto', sans-serif;
+    min-height: 360px;
+    font-size: 21px;
+    padding: 24px 28px;
+    font-weight: 500;
+    border: 1px solid #b0b0b0;
+    border-radius: 14px;
+    resize: vertical;
+    transition: border 0.3s ease;
+    outline: none;
+}
+
+.trans-col textarea:focus,
+.trans-col textarea:active {
+    border: 1px solid #b0b0b0;
+}
+
+
+/* While typing (has content) */
+
+.trans-col textarea.typing {
+    border: 1px solid #ffffff;
+    /* white border */
+}
+
+#translatedText {
+    min-height: 454px;
+}
+
+.fltr {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    margin-top: -31px;
+    margin-left: 40%;
+}
+
+.translation-notice {
+    color: #f46969;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.translation-notice p {
+    margin: 0;
+    line-height: 1;
+    word-spacing: 1px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-top-color: #007acc;
+    border-radius: 50%;
+    margin-top: -17pc;
+    animation: spin 1s linear infinite;
+}
+
+.lt {
+    display: flex;
+    flex-direction: column-reverse;
+    flex-wrap: nowrap;
+    gap: 0px;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* Keyframes for spinner animation */
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* ======== Preview Container & Toolbar ======== */
+
+.preview-container {
+    display: flex;
+    flex-wrap: nowrap;
+    padding: 20px;
+    padding: 0px 20px 0px;
+    padding-bottom: 9px;
+    border-radius: 14px;
+    width: 85%;
+    background: transparent;
+    margin-top: 44px;
+    margin-left: 7pc;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.preview-left {
+    flex: 1;
+    padding: 26px;
+    padding-left: 17px;
+    padding-top: 36.5px;
+}
+
+
+/* Toolbar */
+
+.preview-toolbar {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 15px;
+    margin-bottom: 9px;
+    flex-direction: row;
+    align-content: space-around;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.preview-group {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 15px;
+    color: #393838;
+}
+
+.preview-group span {
+    font-size: 22px;
+    padding-right: 5px;
+    letter-spacing: 0.5px;
+}
+
+.toggle-edit {
+    background: #6c6c6c;
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    padding: 6px 12px;
+    cursor: pointer;
+    margin-left: 50px;
+    transition: background 0.3s;
+    box-shadow: 2px 1px 7px rgba(0, 0, 0, 0.296);
+}
+
+.toggle-edit:hover {
+    background: #005a9c;
+}
+
+
+/* Preview area: fixed height, scrollable, bordered */
+
+.content-editable {
+    width: 100%;
+    font-family: 'Roboto', sans-serif;
+    min-height: 500px;
+    font-size: 21px;
+    padding: 24px 28px;
+    font-weight: 500;
+    border: 1px solid #b0b0b0;
+    border-radius: 14px;
+    resize: vertical;
+    transition: min-height 0.3s;
+    outline: none;
+}
+
+.first-line,
+.second-line {
+    padding: 5px 0;
+}
+
+
+/* ======== Styling classes for Bold and Italic ======== */
+
+.bold {
+    font-weight: bold;
+}
+
+.italic {
+    font-style: italic;
+}
+
+
+/* ======== Export & Utility Button Styles ======== */
+
+.export-actions {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    margin-top: 23.7pc;
+    margin-left: 1pc;
+    margin-right: 1pc;
+}
+
+.ex {
+    margin-top: 60px;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.btn-export {
+    background: #1346b7;
+    color: #fff;
+    border: none;
+    padding: 13px 25px;
+    border-radius: 25px;
+    font-size: 23px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    box-shadow: 2px 1px 7px rgba(0, 0, 0, 0.249);
+}
+
+.btn-export:hover {
+    background: #3d77f4;
+    transform: scale(1.03);
+}
+
+
+/* Toolbar button styling */
+
+.preview-group button {
+    background: #ffffff;
+    border: 0.1px solid #e6e6e6;
+    border-radius: 7px;
+    padding: 5px 13px;
+    font-size: 21px;
+    color: #161616;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, transform 0.2s;
+}
+
+#first-lang-toolbar {
+    padding-right: 3pc;
+}
+
+.preview-group button:hover {
+    background-color: #e6e6e6;
+    color: #262626;
+    transform: scale(1.05);
+}
+
+
+/* New style to indicate the toggled (active) state */
+
+.preview-group button.active-toggle {
+    background-color: #e6e6e6;
+    /* Active background (black) */
+    color: #161616;
+    /* Active text color (white) */
+}
+
+
+/* ======== Footer ======== */
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 44px;
+    font-size: 22px;
+    color: #5555557b;
+    pointer-events: none;
+}
+
+
+/* ----- New Button Styles ----- */
+
+.btn-preview {
+    background: #1346b7;
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    padding: 2.5px 14px;
+    font-size: 13.5px;
+    cursor: pointer;
+    margin: 0 5px;
+    margin-bottom: 10px;
+    box-shadow: 2px 1px 7px rgba(0, 0, 0, 0.4);
+    transition: background 0.3s, transform 0.2s;
+}
+
+.btn-preview:hover {
+    background: #3d77f4;
+    transform: scale(1.02);
+}
+
+
+/* ----- Watermark Style ----- */
+
+.watermark {
+    position: fixed;
+    bottom: -4px;
+    left: 0;
+    opacity: 1;
+    z-index: -1;
+    /* Places watermark behind other elements */
+    pointer-events: none;
+    /* Ensures watermark does not capture mouse events */
+}
+
+.watermark img {
+    max-width: 200px;
+    transform: scale(2.8);
+    margin-bottom: 7.1pc;
+    margin-left: 10pc;
+}

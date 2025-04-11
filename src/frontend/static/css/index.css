@@ -1,0 +1,152 @@
+/* ====== Global & Body (Splash) ====== */
+
+body.splash {
+    margin: 0;
+    padding: 0;
+    margin-top: 18.5pc;
+    /* Soft gradient background */
+    background: #EBFDFC;
+    display: flex;
+    flex-direction: column;
+    /* Center everything horizontally */
+    align-items: center;
+    /* Center content vertically */
+    justify-content: center;
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+    user-select: none;
+}
+
+
+/* ====== Splash Screen Container ====== */
+
+.splash-screen {
+    text-align: center;
+    max-width: 2000px;
+    margin: 0 auto;
+    transition: opacity 0.6s ease;
+}
+
+
+/* Fade-out effect */
+
+.splash-screen.fade-out {
+    opacity: 0;
+}
+
+
+/* ====== Logo Styling ====== */
+
+.splash-logo {
+    max-width: 665px;
+    margin-bottom: 25px;
+}
+
+
+/* ====== Headline (H1) ====== */
+
+.splash-screen h1 {
+    font-size: 36px;
+    line-height: 1.2;
+    letter-spacing: 0.2px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    padding: 0 0px;
+}
+
+
+/* ====== Button Styles ====== */
+
+.btn {
+    cursor: pointer;
+    font-size: 32px;
+    border-radius: 100px;
+    border: none;
+    font-style: bold;
+    padding: 17px 83px;
+    font-family: 'Roboto', sans-serif;
+    margin-top: 43px;
+    transition: background 0.3s, transform 0.2s;
+    box-shadow: 2px 1px 7px rgba(0, 0, 0, 0.655);
+}
+
+.btn:hover {
+    transform: scale(1.05);
+}
+
+.btn-primary {
+    background: #1346b7;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #005a9c;
+}
+
+
+/* ====== Footer Styling ====== */
+
+.splash-footer {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    text-align: center;
+    padding: 20px;
+    font-size: 0.9rem;
+    color: #555;
+    pointer-events: none;
+}
+
+.splash-footer p {
+    margin: 45px 0;
+}
+
+.splash-footer a {
+    color: #000000bc;
+    text-decoration: none;
+    font-size: 33px;
+}
+
+.qt {
+    position: absolute;
+    bottom: 92px;
+    width: 98%;
+    letter-spacing: -0.2px;
+    text-align: center;
+    color: #555;
+}
+
+.ft {
+    /* ======== Footer ======== */
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 44px;
+    font-size: 22px;
+    color: #5555557b;
+    pointer-events: none;
+}
+
+
+/* ----- Watermark Style ----- */
+
+.watermark {
+    position: fixed;
+    bottom: -10px;
+    left: 0;
+    opacity: 1;
+    z-index: -1;
+    /* Places watermark behind other elements */
+    pointer-events: none;
+    /* Ensures watermark does not capture mouse events */
+}
+
+.watermark img {
+    max-width: 200px;
+    transform: scale(3.03);
+    margin-left: 5.55pc;
+}

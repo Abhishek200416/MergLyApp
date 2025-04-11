@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\src",
+    "\\src\\frontend",
+    "\\src\\frontend\\static",
+    "\\src\\frontend\\static\\assets",
+    "\\src\\frontend\\static\\css",
+    "\\src\\frontend\\static\\js",
+    "\\src\\frontend\\templates"
+  ],
+  "SelectedNode": "\\src\\frontend\\static\\js\\lyrics.js",
+  "PreviewInSolutionExplorer": false
+}

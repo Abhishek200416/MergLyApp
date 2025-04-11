@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Marjorie - Welcome</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+  <style>
+    html { visibility: hidden; }
+  </style>
+  <script>
+    /**
+     * Target design resolution
+     * (Your app is built for 1920×1080)
+     */
+    const TARGET_WIDTH = 1920;
+    const TARGET_HEIGHT = 1080;
+
+    /**
+     * This optional factor can be used to nudge the Mac scaling
+     * if the devicePixelRatio alone doesn't match your desired size.
+     * By default, we set it to 1 for universal handling (no extra).
+     */
+    const MAC_EXTRA_FACTOR = 1; // e.g. 1.2 if you need an extra 20%
+
+    /**
+     * If you wish to unify the approach across both Mac and Windows,
+     * you can apply devicePixelRatio on all platforms, not just Mac.
+     * If you'd prefer it only for Mac, see the isMacPlatform() check below.
+     */
+    function isMacPlatform() {
+      return navigator.platform && navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    }
+
+    /**
+     * Compute scale factor:
+     * 1) Start with window's "physical" width & height, factoring in devicePixelRatio.
+     *    e.g. if window.innerWidth=1000 but devicePixelRatio=2, treat that as 2000.
+     * 2) Compare to our 1920×1080 target. Use whichever dimension ratio is smaller so
+     *    the entire layout fits in the viewport.
+     * 3) If on Mac, optionally multiply by MAC_EXTRA_FACTOR if you find the result still
+     *    looks too small or large on certain Retina screens.
+     */
+    function computeScaleFactor() {
+      // The "effective" or "physical" window size in device pixels
+      const physicalWidth = window.innerWidth * window.devicePixelRatio;
+      const physicalHeight = window.innerHeight * window.devicePixelRatio;
+
+      // Compare to the design resolution
+      const scaleX = physicalWidth / TARGET_WIDTH;
+      const scaleY = physicalHeight / TARGET_HEIGHT;
+
+      // Choose the smaller ratio so the entire layout remains visible
+      let scaleFactor = Math.min(scaleX, scaleY);
+
+      // If you only want to apply the devicePixelRatio trick on Mac:
+      if (!isMacPlatform()) {
+        // Then revert scaleFactor to the simpler approach if on Windows (or other).
+        // Comment out these lines if you want DPI-based scaling on every platform.
+        const simpleScaleX = window.innerWidth / TARGET_WIDTH;
+        const simpleScaleY = window.innerHeight / TARGET_HEIGHT;
+        scaleFactor = Math.min(simpleScaleX, simpleScaleY);
+      }
+
+      // If Mac, add optional extra factor:
+      if (isMacPlatform()) {
+        scaleFactor *= MAC_EXTRA_FACTOR;
+      }
+
+      return scaleFactor;
+    }
+
+    /**
+     * Applies the scale factor to the entire <body>:
+     * 1) Use CSS "zoom" if available
+     * 2) Fallback to CSS transforms otherwise
+     * 3) Inverse-scale any ".fixed-size" elements so they remain a consistent size
+     */
+    function applyScaling() {
+      const scaleFactor = computeScaleFactor();
+
+      // If the browser supports CSS "zoom", prefer that
+      if ('zoom' in document.body.style) {
+        document.body.style.zoom = scaleFactor;
+        // Clear transforms
+        document.body.style.transform = '';
+        document.body.style.width = '';
+      } else {
+        // Otherwise, use fallback transform scaling
+        document.body.style.transform = `scale(${scaleFactor})`;
+        document.body.style.transformOrigin = 'top left';
+        // Adjust the body width so that content doesn't overflow
+        document.body.style.width = `${100 / scaleFactor}%`;
+      }
+
+      // Inverse-scale elements that should remain visually the same size
+      const fixedElements = document.querySelectorAll('.fixed-size');
+      fixedElements.forEach(el => {
+        el.style.transform = `scale(${1 / scaleFactor})`;
+        el.style.transformOrigin = 'center center';
+      });
+
+      // Finally, reveal the page after scaling
+      document.documentElement.style.visibility = 'visible';
+    }
+
+    /**
+     * Debounce function to avoid excessive calls during window resize or zoom
+     */
+    function debounce(fn, delay) {
+      let timeout;
+      return function() {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          fn();
+        }, delay);
+      };
+    }
+
+    // Debounce the scaling for smoother experience
+    const debouncedApplyScaling = debounce(applyScaling, 0.001);
+
+    // Apply on DOM load
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', applyScaling);
+    } else {
+      applyScaling();
+    }
+
+    // Apply on window resize (includes browser zoom in many browsers)
+    window.addEventListener('resize', debouncedApplyScaling);
+  </script>
+</head>
+<body class="splash">
+  <div class="splash-screen">
+    <img src="{{ url_for('static', filename='assets/Logo.svg') }}" alt="Marjorie Logo" class="splash-logo">
+    <h1>
+      MergeLy helps you effortlessly merge lyrics from two languages into one clean,<br>
+      unified format—empowering seamless worship experiences with ProPresenter.
+    </h1>
+    <button id="start-btn" class="btn btn-primary">Start</button>
+  </div>
+  <div class="splash-footer">
+    <p class="qt"><a href="#">Quick Start Guide</a></p>
+    <p class="ft">© MergeLy - Built to Serve Global Church Tech</p>
+  </div>
+  <div class="watermark">
+    <img src="{{ url_for('static', filename='assets/Logo-watermark.svg') }}" alt="Watermark">
+  </div>
+  <script>
+    document.getElementById('start-btn').addEventListener('click', () => {
+      document.querySelector('.splash-screen').classList.add('fade-out');
+      setTimeout(() => {
+        window.location.href = "/main";
+      }, 1000);
+    });
+  </script>
+</body>
+</html>
