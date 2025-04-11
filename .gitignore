@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.spec
+
+# Flask environment
+.env
+
+# PyInstaller
+build/
+dist/
+
+# Electron
+node_modules/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
