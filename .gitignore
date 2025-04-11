@@ -1,17 +1,25 @@
-# Python build artifacts
+@"
+# Environments
+.env
+
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
-*.pyd
 *.spec
 
-# Build folders
+# Build artifacts
 build/
 dist/
-
-# Executables
 *.exe
 *.zip
 
-# Envs
-.env
+# Node
+node_modules/
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+"@ | Out-File -Append .gitignore
