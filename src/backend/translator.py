@@ -1,121 +1,117 @@
 import time
-import os
-import re
-import logging
 import requests
-from dotenv import load_dotenv
-load_dotenv()
 
-__all__ = ['translate_text', 'AdvancedTranslator']
+def translate_text(text, target_lang, preserve_names=False):
+    if not text.strip():
+        return "Error: Input text is empty."
 
-# Configure logging.
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[logging.StreamHandler()]
-)
+    api_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+    # Replace with your actual API key securely loaded (e.g., from an environment variable)
+    api_key = "AIzaSyDm6Sea886eqCLV5tVhXFryuHNDrEczeJI"
+    params = {"key": api_key}
 
-# Global settings.
-MAX_RETRIES = 3
-INITIAL_BACKOFF = 1.0  # seconds
-
-def exponential_backoff_retry(func):
-    """Decorator to retry a function call with exponential backoff."""
-    def wrapper(*args, **kwargs):
-        retries = 0
-        backoff = INITIAL_BACKOFF
-        while retries < MAX_RETRIES:
-            try:
-                return func(*args, **kwargs)
-            except requests.HTTPError as e:
-                retries += 1
-                logging.warning("Retry %d/%d: %s", retries, MAX_RETRIES, e)
-                if retries >= MAX_RETRIES:
-                    logging.error("Max retries reached. Aborting.")
-                    raise
-                time.sleep(backoff)
-                backoff *= 2
-    return wrapper
-
-class AdvancedTranslator:
-    def __init__(self):
-        # Retrieve the API key from the environment variable.
-        self.api_key = os.environ.get("GENERATIVE_LANGUAGE_API_KEY")
-        if not self.api_key:
-            raise ValueError("API key not found. Set the GENERATIVE_LANGUAGE_API_KEY environment variable.")
-        self.api_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
-        self.session = requests.Session()
-        self.headers = {"Content-Type": "application/json"}
-        self.params = {"key": self.api_key}
-
-    def _build_prompt(self, text, target_lang):
-        """
-        Constructs a minimal prompt that instructs the API to translate 
-        exactly one output line per input line with no extra words.
-        """
-        if target_lang.lower() in ["en", "eng", "english"]:
-            prompt = (
-                "Transliterate the following text into Latin script (romanized) exactly, "
-                "one output line per input line with no extra words:\n\n" + text
-            )
-        elif target_lang.lower() in ["hi", "hindi"]:
-            prompt = (
-                "Translate the following Telugu text into Hindi exactly, "
-                "one output line per input line with no extra words. Preserve proper names:\n\n" + text
-            )
-        else:
-            prompt = (
-                f"Translate the following Telugu text into {target_lang} exactly, "
-                "one output line per input line with no extra words:\n\n" + text
-            )
-        return prompt
-
-    def _clean_output(self, output):
-        return output.strip()
-
-    @exponential_backoff_retry
-    def _send_request(self, payload):
-        logging.debug("Sending API payload: %s", payload)
-        response = self.session.post(
-            self.api_url, params=self.params, json=payload, headers=self.headers, timeout=10
+    # Build prompt instructions with very strict formatting requirements:
+    # 1. Exactly preserve newline structure and formatting.
+    # 2. Ensure that the output contains one translated line per input line.
+    # 3. Do not add any extra explanation or commentary.
+    # 4. Preserve proper names if requested.
+    if target_lang.lower() in ["en", "eng", "english"]:
+        prompt_text = (
+            "Transliterate the following Telugu text into Latin script (romanized) "
+            "ensuring you preserve the exact line breaks and formatting. Each output "
+            "line must directly correspond to each input line without mixing lines. "
+            "Do not provide any extra explanation or commentary.\n\n" 
+            + text
         )
+    elif target_lang.lower() in ["hi", "hindi"]:
+        prompt_text = (
+            "Translate the following Telugu text into Hindi while strictly preserving "
+            "the original newline breaks and formatting. Each output line must be a direct "
+            "translation of the corresponding input line. Do not mix or combine lines, "
+            "and provide no additional commentary. If there are proper names (for example, "
+            "'Nenu'), leave them unchanged.\n\n" 
+            + text
+        )
+    else:
+        prompt_text = (
+            f"Translate the following Telugu text into {target_lang} while strictly preserving "
+            "the original newline breaks and formatting. Each output line must be a direct "
+            "translation of the corresponding input line without mixing or combining lines. "
+            "Do not add any extra commentary or explanation.\n\n" 
+            + text
+        )
+
+    # Append instruction to preserve proper names if the flag is set.
+    if preserve_names:
+        prompt_text += "\n\nDo not translate proper names; preserve them exactly as they appear."
+
+    # Append a unique token to the prompt to ensure a fresh request each time.
+    prompt_text += f"\n\nUniqueRef: {time.time()}"
+
+    payload = {
+        "contents": [{
+            "parts": [{"text": prompt_text}]
+        }]
+    }
+    headers = {"Content-Type": "application/json"}
+
+    # Function to send the API request.
+    def send_request():
+        return requests.post(api_url, params=params, json=payload, headers=headers)
+
+    try:
+        response = send_request()
+        # If not 200, wait a moment and try one more time in case of a transient error.
         if response.status_code != 200:
-            # Raise an HTTPError for a failed request.
-            raise requests.HTTPError(f"HTTP {response.status_code} - {response.text}")
-        return response.json()
+            time.sleep(1)
+            response = send_request()
 
-    def translate_text(self, text, target_lang):
-        """
-        Sends the translation or transliteration request and returns the cleaned output.
-        Expects input text with one line per lyric; output maintains the same line separation.
-        """
-        if not text.strip():
-            return "Error: Input text is empty."
-        prompt_text = self._build_prompt(text, target_lang)
-        payload = {"contents": [{"parts": [{"text": prompt_text}]}]}
-        data = self._send_request(payload)
-        if "candidates" in data and data["candidates"]:
-            candidate = data["candidates"][0]
-            content = candidate.get("content", {})
-            parts = content.get("parts", [])
-            if parts and parts[0].get("text"):
-                return self._clean_output(parts[0]["text"])
+        # Debug logging: print the full API response (remove or secure in production)
+        print("Full API response:", response.json())
+
+        if response.status_code == 200:
+            data = response.json()
+            if "candidates" in data and data["candidates"]:
+                candidate = data["candidates"][0]
+                content = candidate.get("content", {})
+                parts = content.get("parts", [])
+                if parts and parts[0].get("text"):
+                    translated = parts[0]["text"].strip()
+                    return translated if translated else "Error: Translation output field is empty."
+                else:
+                    return "Error: Unexpected response structure—no text found."
             else:
-                return "Error: No text found in the response."
-        return "Error: No valid translation candidate."
+                return "Error: Translation candidate not found in response."
+        else:
+            return f"Translation API error: {response.status_code} - {response.text}"
+    except Exception as e:
+        return f"Error during translation: {str(e)}"
 
-def translate_text(text, target_lang):
-    """
-    Module-level helper function to translate lyrics.
-    """
-    translator = AdvancedTranslator()
-    return translator.translate_text(text, target_lang)
 
 if __name__ == "__main__":
-    sample = (
+    regional_text = (
         "Nenu Naa Illu Naa Inti Vaarandaru\n"
         "Maanaka Sthuthinchedamu (2)\n"
-        "Nee Kanupaapa Vale Nannu Kaachi"
+        "Nee Kanupaapa Vale Nannu Kaachi\n"
+        "Nenu Chedaraka Mosaavu Sthothram (2)\n"
+        "Ebinejare Ebinejare – Intha Kaalam Kaachithive\n"
+        "Ebinejare Ebinejare – Naa Thoduvai Nadachithive (2)\n"
+        "Sthothram Sthothram Sthothram – Kanupaapaga Kaachithivi Sthothram\n"
+        "Sthothram Sthothram Sthothram – Kougililo Daachithivi Sthothram         ||Nenu||\n\n"
+        "Edaarilo Unna Naa Jeevithamunu\n"
+        "Melutho Nimpithive (2)\n"
+        "Oka Keedaina Dari Cheraka Nannu\n"
+        "Thandrigaa Kaachaavu Sthothram (2)          ||Ebinejare||\n\n"
+        "Niraashatho Unna Naa Heena Brathukunu\n"
+        "Nee Krupatho Nimpithive (2)\n"
+        "Neevu Choopina Premanu Paadagaa\n"
+        "Padamulu Saripovu Thandri (2)          ||Ebinejare||\n\n"
+        "Gnaanula Madhyalo Nanu Pilachina Nee Pilupe\n"
+        "Aascharyamaascharyame (2)\n"
+        "Nee Paathranu Kaane Kaanu\n"
+        "Kevalamu Nee Krupaye Sthothram (2)          ||Ebinejare||"
     )
+    target_language = "hi"
+    translation = translate_text(regional_text, target_language, preserve_names=True)
     print("Translated Output:")
-    print(translate_text(sample, "hi"))
+    print(translation)
