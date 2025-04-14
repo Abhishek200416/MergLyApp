@@ -2,152 +2,40 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Mergely - Lyric Merge</title>
-  <!-- Prevent user scaling -->
+  <title>MergLy - Lyric Merge</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  
-  <!-- Roboto Font -->
+  <!-- Updated Content Security Policy to allow Google Fonts -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src 'self';
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    img-src 'self' data:;
+    connect-src 'self';
+    font-src 'self' https://fonts.gstatic.com;
+    object-src 'none';
+  ">
+  <!-- Now the external stylesheet from Google Fonts will load -->
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
-  <!-- Link your CSS -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
-  <!-- Hide content until scaling is applied -->
-  <style>
-    html { visibility: hidden; }
-  </style>
-  
-  <script>
-    /**
-     * Target design resolution
-     * (Your app is built for 1920×1080)
-     */
-    const TARGET_WIDTH = 1920;
-    const TARGET_HEIGHT = 1080;
-
-    /**
-     * This optional factor can be used to nudge the Mac scaling
-     * if the devicePixelRatio alone doesn't match your desired size.
-     * By default, we set it to 1 for universal handling (no extra).
-     */
-    const MAC_EXTRA_FACTOR = 2; // e.g. 1.2 if you need an extra 20%
-
-    /**
-     * If you wish to unify the approach across both Mac and Windows,
-     * you can apply devicePixelRatio on all platforms, not just Mac.
-     * If you'd prefer it only for Mac, see the isMacPlatform() check below.
-     */
-    function isMacPlatform() {
-      return navigator.platform && navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-    }
-
-    /**
-     * Compute scale factor:
-     * 1) Start with window's "physical" width & height, factoring in devicePixelRatio.
-     *    e.g. if window.innerWidth=1000 but devicePixelRatio=2, treat that as 2000.
-     * 2) Compare to our 1920×1080 target. Use whichever dimension ratio is smaller so
-     *    the entire layout fits in the viewport.
-     * 3) If on Mac, optionally multiply by MAC_EXTRA_FACTOR if you find the result still
-     *    looks too small or large on certain Retina screens.
-     */
-    function computeScaleFactor() {
-      // The "effective" or "physical" window size in device pixels
-      const physicalWidth = window.innerWidth * window.devicePixelRatio;
-      const physicalHeight = window.innerHeight * window.devicePixelRatio;
-
-      // Compare to the design resolution
-      const scaleX = physicalWidth / TARGET_WIDTH;
-      const scaleY = physicalHeight / TARGET_HEIGHT;
-
-      // Choose the smaller ratio so the entire layout remains visible
-      let scaleFactor = Math.min(scaleX, scaleY);
-
-      // If you only want to apply the devicePixelRatio trick on Mac:
-      if (!isMacPlatform()) {
-        // Then revert scaleFactor to the simpler approach if on Windows (or other).
-        // Comment out these lines if you want DPI-based scaling on every platform.
-        const simpleScaleX = window.innerWidth / TARGET_WIDTH;
-        const simpleScaleY = window.innerHeight / TARGET_HEIGHT;
-        scaleFactor = Math.min(simpleScaleX, simpleScaleY);
-      }
-
-      // If Mac, add optional extra factor:
-      if (isMacPlatform()) {
-        scaleFactor *= MAC_EXTRA_FACTOR;
-      }
-
-      return scaleFactor;
-    }
-
-    /**
-     * Applies the scale factor to the entire <body>:
-     * 1) Use CSS "zoom" if available
-     * 2) Fallback to CSS transforms otherwise
-     * 3) Inverse-scale any ".fixed-size" elements so they remain a consistent size
-     */
-    function applyScaling() {
-      const scaleFactor = computeScaleFactor();
-
-      // If the browser supports CSS "zoom", prefer that
-      if ('zoom' in document.body.style) {
-        document.body.style.zoom = scaleFactor;
-        // Clear transforms
-        document.body.style.transform = '';
-        document.body.style.width = '';
-      } else {
-        // Otherwise, use fallback transform scaling
-        document.body.style.transform = `scale(${scaleFactor})`;
-        document.body.style.transformOrigin = 'top left';
-        // Adjust the body width so that content doesn't overflow
-        document.body.style.width = `${100 / scaleFactor}%`;
-      }
-
-      // Inverse-scale elements that should remain visually the same size
-      const fixedElements = document.querySelectorAll('.fixed-size');
-      fixedElements.forEach(el => {
-        el.style.transform = `scale(${1 / scaleFactor})`;
-        el.style.transformOrigin = 'center center';
-      });
-
-      // Finally, reveal the page after scaling
-      document.documentElement.style.visibility = 'visible';
-    }
-
-    /**
-     * Debounce function to avoid excessive calls during window resize or zoom
-     */
-    function debounce(fn, delay) {
-      let timeout;
-      return function() {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-          fn();
-        }, delay);
-      };
-    }
-
-    // Debounce the scaling for smoother experience
-    const debouncedApplyScaling = debounce(applyScaling, 0.0111);
-
-    // Apply on DOM load
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', applyScaling);
-    } else {
-      applyScaling();
-    }
-
-    // Apply on window resize (includes browser zoom in many browsers)
-    window.addEventListener('resize', debouncedApplyScaling);
-  </script>
+  <link rel="stylesheet" href="../static/css/style.css?v=5.0.0">
+  <style> html { visibility: hidden; } </style>
 </head>
 <body>
+  <div id="notificationBanner" role="alert">Please enter text and select a language.</div>
+
+  <!-- No-resize overlay zones -->
+  <div class="no-resize-zone top"></div>
+  <div class="no-resize-zone bottom"></div>
+  <div class="no-resize-zone left"></div>
+  <div class="no-resize-zone right"></div>
+
   <!-- Watermark at bottom left -->
   <div class="watermark">
-    <img src="{{ url_for('static', filename='assets/Logo-watermark.svg') }}" alt="Watermark">
+    <img src="../static/assets/Logo-watermark.svg" alt="Watermark">
   </div>
 
   <!-- Header with Logo & Tabs -->
   <header class="header">
-    <a href="{{ url_for('index') }}"><img src="{{ url_for('static', filename='assets/Logo.svg') }}" alt="Mergely Logo" class="logo"></a>
+    <a href="./index.html"><img src="../static/assets/Logo.svg" class="logo" alt="Marjorie Logo"></a>
     <nav class="nav-tabs">
       <button class="tab-btn active" data-tab="merge">Merge</button>
       <button class="tab-btn" data-tab="translated">Transliterate</button>
@@ -163,7 +51,6 @@
         <div class="language-col">
           <h2>First Language</h2>
           <textarea id="firstLanguage" placeholder="Enter first language lyrics here" spellcheck="false"></textarea>
-
           <div class="drop-area" id="dropArea1">
             <p>Drag & drop files here</p>
             <input type="file" id="fileInput1" accept=".txt">
@@ -179,15 +66,12 @@
           </div>
         </div>
       </div>
-      <!-- Merge Button & Swap Button -->
+      <!-- Merge Button & Swap Buttons -->
       <div class="merge-center">
-        <button id="swap-btn" class="btn-swap">
-          <img src="{{ url_for('static', filename='assets/Swap.svg') }}" alt="Swap">
-        </button>
-        <button id="swap-btn" class="btn-swap bswap">
-          <img id="swapIcon" src="{{ url_for('static', filename='assets/Swap.svg') }}" alt="Swap">
-        </button>
-        
+        <button class="btn-swap">
+          <img src="../static/assets/Swap.svg" class="swap-icon normal" alt="Swap">
+          <img src="../static/assets/Swap_Blue.svg" class="swap-icon active hidden" alt="Swap Active">
+      </button>
         <button id="merge-btn" class="btn-merge">Merge</button>
       </div>
     </section>
@@ -195,27 +79,25 @@
     <!-- Translated Screen -->
     <section id="translated" class="tab-content">
       <div class="translation-notice">
-        <p>Transliteration may not always be perfect. Please verify carefully. If any part seems incomplete, click the Translate button again.</p>
+        <p>Transliteration may not always be perfect. Please verify carefully. If any part seems incomplete, or use 7 line input, click the Translate button again.</p>
       </div>
-      
       <div class="trans-container">
         <!-- Left Column: Regional Language -->
-        <div class="trans-col" >
+        <div class="trans-col">
           <h2>Regional Language</h2>
-          <textarea id="regionalText"spellcheck="false" placeholder="Enter your regional language lyrics here" ></textarea>
+          <textarea id="regionalText" spellcheck="false" placeholder="Enter your regional language lyrics here"></textarea>
           <div class="drop-area" id="dropAreaRegional">
             <p>Drag & drop files here</p>
             <input type="file" id="fileInputRegional" accept=".txt">
           </div>
         </div>
-      
         <!-- Right Column: Desired Language & Translation Output -->
-        <div class="trans-col">
+        <div class="trans-col tt">
           <div class="dr">
             <h2>Desired Language</h2>
             <div class="right-group">
               <button id="refreshTranslateSection" title="Refresh Transliterate Section" class="btn-refresh">
-                <img src="{{ url_for('static', filename='assets/reload.svg') }}" alt="reload">
+                <img src="../static/assets/reload.svg" alt="reload">
               </button>
               <div class="language-dropdown">
                 <input type="text" id="languageSearchInput" placeholder="Search languages..." autocomplete="off">
@@ -233,7 +115,7 @@
         </div>
       </div>
     </section>
-   
+    
     <!-- Preview Screen -->
     <section id="preview" class="tab-content">
       <div class="preview-container">
@@ -251,8 +133,7 @@
               <button type="button" onclick="toggleStyle('second', 'italic', this)">Italic</button>
             </div>
           </div>
-          <div id="mergedLyricsPreview" spellcheck="false" class="content-editable" contenteditable="true" 
-               placeholder="Merged lyrics appear here..."></div>
+          <div id="mergedLyricsPreview" spellcheck="false" class="content-editable" contenteditable="true" placeholder="Merged lyrics appear here..."></div>
         </div>
         <!-- Right Column: Export Options -->
         <div class="preview-right">
@@ -265,301 +146,16 @@
       </div>
     </section>
   </main>
-
+  
   <footer class="footer">
     <p>© MergeLy - Built to Serve Global Church Tech</p>
   </footer>
-
-  <!-- Scripts -->
-  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/lyrics.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/translator.js') }}"></script>
-  <script>
-    /* ----- Tab Switching ----- */
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    const tabContents = document.querySelectorAll('.tab-content');
-    tabButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        tabButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        tabContents.forEach(tc => tc.classList.remove('active'));
-        document.getElementById(btn.dataset.tab).classList.add('active');
-      });
-    });
-    const swapBtn = document.getElementById('swap-btn');
-    const swapIcon = document.getElementById('swapIcon');
-    
-    swapBtn.addEventListener('mouseenter', () => {
-      swapIcon.src = "{{ url_for('static', filename='assets/Swap_Blue.svg') }}";
-    });
-    
-    swapBtn.addEventListener('mouseleave', () => {
-      swapIcon.src = "{{ url_for('static', filename='assets/Swap.svg') }}";
-    });
-    
-    /* ----- Drag & Drop Setup ----- */
-    function setupDragAndDrop(dropAreaId, fileInputId, textAreaId) {
-      const dropArea = document.getElementById(dropAreaId);
-      const fileInput = document.getElementById(fileInputId);
-      const textArea = document.getElementById(textAreaId);
-
-      dropArea.addEventListener('click', () => fileInput.click());
-      dropArea.addEventListener('dragover', e => {
-        e.preventDefault();
-        dropArea.classList.add('dragover');
-      });
-      dropArea.addEventListener('dragleave', () => {
-        dropArea.classList.remove('dragover');
-      });
-      dropArea.addEventListener('drop', e => {
-        e.preventDefault();
-        dropArea.classList.remove('dragover');
-        const file = e.dataTransfer.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = evt => textArea.value = evt.target.result;
-          reader.readAsText(file);
-        }
-      });
-      fileInput.addEventListener('change', () => {
-        const file = fileInput.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = evt => textArea.value = evt.target.result;
-          reader.readAsText(file);
-        }
-      });
-    }
-    setupDragAndDrop('dropArea1', 'fileInput1', 'firstLanguage');
-    setupDragAndDrop('dropArea2', 'fileInput2', 'secondLanguage');
-    setupDragAndDrop('dropAreaRegional', 'fileInputRegional', 'regionalText');
-
-    /* ----- Merge Functionality ----- */
-    document.getElementById('merge-btn').addEventListener('click', () => {
-      const firstText = document.getElementById('firstLanguage').value;
-      const secondText = document.getElementById('secondLanguage').value;
-      fetch("/process_lyrics", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstLanguage: firstText, secondLanguage: secondText })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if(data.error) {
-          alert(data.error);
-        } else {
-          renderMergedLyrics(data.mergedLyrics);
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        alert("Error merging lyrics.");
-      });
-    });
-    function renderMergedLyrics(merged) {
-      const preview = document.getElementById('mergedLyricsPreview');
-      const lines = merged.split("\n");
-      let formattedHTML = "";
-      lines.forEach((line, index) => {
-        formattedHTML += (index % 2 === 0) 
-          ? `<div class="first-line">${line}</div>` 
-          : `<div class="second-line">${line}</div>`;
-      });
-      preview.innerHTML = formattedHTML;
-    }
-
-    /* ----- Swap Functionality ----- */
- // Select all elements with the class "btn-swap"
-const swapButtons = document.querySelectorAll('.btn-swap');
-
-swapButtons.forEach(button => {
-  button.addEventListener('click', () => {
-    const firstTextArea = document.getElementById('firstLanguage');
-    const secondTextArea = document.getElementById('secondLanguage');
-    const temp = firstTextArea.value;
-    firstTextArea.value = secondTextArea.value;
-    secondTextArea.value = temp;
-  });
-});
-
-
-    /* ----- Translation Functionality ----- */
-    let previousRegionalText = ""; // to check if text has changed
-
-    document.getElementById('translate-btn').addEventListener('click', () => {
-      const regionalTextElem = document.getElementById('regionalText');
-      const regionalText = regionalTextElem.value;
-      
-      // Get chosen language from the search dropdown
-      const chosenLang = document.getElementById('languageSearchInput').dataset.lang || "en";
-
-      const spinner = document.getElementById('loading-spinner');
-      spinner.style.display = 'block';
-      
-      fetch("/translate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: regionalText, targetLang: chosenLang })
-      })
-      .then(response => response.json())
-      .then(data => {
-        spinner.style.display = 'none';
-        if(data.error) {
-          alert(data.error);
-        } else {
-          document.getElementById('translatedText').value = data.translation;
-        }
-      })
-      .catch(err => {
-        spinner.style.display = 'none';
-        console.error(err);
-        alert("Error translating text.");
-      });
-    });
-// Existing translation functionality code...
-
-// ----- Refresh Translate Section Functionality -----
-document.getElementById('refreshTranslateSection').addEventListener('click', () => {
-  // Clear text areas
-  document.getElementById('regionalText').value = "";
-  document.getElementById('translatedText').value = "";
-  
-  // Reset in-memory variable(s)
-  previousRegionalText = "";
-  
-  // Optional: clear any locally stored caches
-  localStorage.removeItem('translationCache');
-
-  console.log("Translation section refreshed; all cache cleared.");
-});
-
-    /* ----- Preview Functionality ----- */
-    document.getElementById('preview-btn')?.addEventListener('click', () => {
-      const translated = document.getElementById('translatedText').value;
-      const previewPanel = document.getElementById('mergedLyricsPreview');
-      const lines = translated.split("\n");
-      let htmlContent = "";
-      lines.forEach(line => {
-        htmlContent += `<div>${line}</div>`;
-      });
-      previewPanel.innerHTML = htmlContent;
-      previewPanel.contentEditable = true;
-      tabButtons.forEach(b => b.classList.remove('active'));
-      tabContents.forEach(tc => tc.classList.remove('active'));
-      document.querySelector('[data-tab="preview"]').classList.add('active');
-      document.getElementById('preview').classList.add('active');
-    });
-
-    /* ----- Export & Copy Functions ----- */
-    function downloadFile(content, filename, contentType) {
-      const a = document.createElement('a');
-      const file = new Blob([content], { type: contentType });
-      a.href = URL.createObjectURL(file);
-      a.download = filename;
-      a.click();
-    }
-    document.getElementById('export-txt').addEventListener('click', () => {
-      const text = document.getElementById('mergedLyricsPreview').innerText; 
-      downloadFile(text, 'merged_lyrics.txt', 'text/plain');
-    });
-    document.getElementById('export-docx').addEventListener('click', () => {
-      const previewContent = document.getElementById('mergedLyricsPreview').innerHTML;
-      const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-                        <head>
-                          <meta charset='utf-8'>
-                          <title>Exported Lyrics</title>
-                          <style>
-                            .first-line.bold, .second-line.bold, .bold { font-weight: bold; }
-                            .first-line.italic, .second-line.italic, .italic { font-style: italic; }
-                          </style>
-                        </head>
-                        <body>`;
-      const footer = "</body></html>";
-      const sourceHTML = header + previewContent + footer;
-      downloadFile(sourceHTML, 'merged_lyrics.doc', 'application/vnd.ms-word');
-    });
-    document.getElementById('copy-text').addEventListener('click', () => {
-      const text = document.getElementById('mergedLyricsPreview').innerText;
-      navigator.clipboard.writeText(text)
-      .then(() => alert("Merged lyrics copied to clipboard!"))
-      .catch(() => alert("Failed to copy text."));
-    });
-
-    /* ----- Toggle Style Functionality ----- */
-    function toggleStyle(language, style, btn) {
-      const elements = document.querySelectorAll(`.${language}-line`);
-      elements.forEach(el => {
-        if (style === 'bold') {
-          if (el.style.fontWeight === "bold") {
-            el.style.fontWeight = "";
-            el.classList.remove('bold');
-          } else {
-            el.style.fontWeight = "bold";
-            el.classList.add('bold');
-          }
-        } else if (style === 'italic') {
-          if (el.style.fontStyle === "italic") {
-            el.style.fontStyle = "";
-            el.classList.remove('italic');
-          } else {
-            el.style.fontStyle = "italic";
-            el.classList.add('italic');
-          }
-        }
-      });
-      btn.classList.toggle('active-toggle');
-    }
-
-    /* ----- Searchable Language Dropdown Functionality ----- */
-    const languages = [
-      { name: "English", code: "en" },
-      { name: "Hindi", code: "hi" },
-      { name: "Telugu", code: "te" },
-      { name: "Tamil", code: "ta" },
-      { name: "Kannada", code: "kn" },
-      { name: "Malayalam", code: "ml" },
-      { name: "Punjabi", code: "pa" },
-      { name: "Russian", code: "ru" },
-      { name: "Thai", code: "th" },
-      { name: "Ukrainian", code: "uk" },
-      { name: "Japanese", code: "ja" },
-      { name: "Chinese (Simplified)", code: "zh-CN" },
-      { name: "Chinese (Traditional)", code: "zh-TW" }
-    ];
-
-    const languageInput = document.getElementById('languageSearchInput');
-    const languageList = document.getElementById('languageList');
-
-    function populateLanguageList(filter = "") {
-      languageList.innerHTML = "";
-      languages.forEach(lang => {
-        if(lang.name.toLowerCase().includes(filter.toLowerCase())){
-          const li = document.createElement('li');
-          li.textContent = lang.name;
-          li.dataset.lang = lang.code;
-          li.addEventListener('click', () => {
-            languageInput.value = lang.name;
-            languageInput.dataset.lang = lang.code;
-            languageList.style.display = "none";
-          });
-          languageList.appendChild(li);
-        }
-      });
-      languageList.style.display = languageList.children.length ? "block" : "none";
-    }
-    populateLanguageList();
-
-    languageInput.addEventListener('input', (e) => {
-      populateLanguageList(e.target.value);
-    });
-    languageInput.addEventListener('focus', () => {
-      populateLanguageList(languageInput.value);
-    });
-    document.addEventListener('click', (e) => {
-      if (!languageInput.contains(e.target) && !languageList.contains(e.target)) {
-        languageList.style.display = "none";
-      }
-    });
-  </script>
+  <!-- External JavaScript Files -->
+  <script src="../static/js/app.js?v=5.0.0"></script>
+  <script src="../static/js/lyrics.js?v=5.0.0"></script>
+  <script src="../static/js/translator.js?v=5.0.0"></script>
+  <script src="../static/js/main.js?v=5.0.0"></script>
+  <script src="../static/js/notify.js?v=5.0.0"></script>
+  <script src="../static/js/updater.js?v=5.0.0"></script>
 </body>
 </html>

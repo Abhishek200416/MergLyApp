@@ -1,44 +1,46 @@
 {
-    "name": "MergeLy",
-    "version": "1.0.0",
-    "main": "main.js",
-    "build": {
-        "appId": "com.MergeLy",
-        "productName": "MergeLy",
-        "files": [
-            "src/",
-            "main.js",
-            "package.json"
-        ],
-        "extraResources": [{
-            "from": "src/backend/",
-            "to": "backend"
-        }],
-        "win": {
-            "icon": "src/frontend/static/assets/Applogo.ico",
-            "target": "nsis"
-        },
-        "nsis": {
-            "oneClick": false,
-            "perMachine": true,
-            "allowToChangeInstallationDirectory": true
-        },
-        "publish": [{
-            "provider": "github",
-            "owner": "Abhishek200416",
-            "repo": "MergeLy"
-        }]
+    "name": "mergely",
+    "version": "7.0.0",
+    "description": "MergLy desktop application",
+    "author": {
+        "name": "As You Go",
+        "email": "your-email@example.com",
+        "url": "https://github.com/Abhishek200416"
     },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Abhishek200416/MergLyApp.git"
+    },
+    "main": "main.js",
     "scripts": {
         "start": "electron .",
-        "dist": "electron-builder"
-    },
-    "devDependencies": {
-        "electron": "^25.2.0",
-        "electron-builder": "^26.0.12"
+        "dist": "electron-builder",
+        "build": "electron-builder"
     },
     "dependencies": {
-        "electron-is-dev": "^2.0.0",
-        "electron-updater": "^5.3.0"
+        "dotenv": "^16.5.0",
+        "electron-log": "^5.3.3",
+        "electron-updater": "^6.6.2",
+        "electron-is-dev": "^2.0.0"
+    },
+    "devDependencies": {
+        "electron": "^26.2.0",
+        "electron-builder": "^26.0.12"
+    },
+    "build": {
+        "appId": "com.yourcompany.mergly",
+        "productName": "MergLy",
+        "files": [
+            "main.js",
+            "package.json",
+            "src/**/*"
+        ],
+        "directories": {
+            "buildResources": "src/frontend/static/assets"
+        },
+        "win": {
+            "target": "nsis",
+            "icon": "src/frontend/static/assets/Applogo.ico"
+        }
     }
 }

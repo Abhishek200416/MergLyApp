@@ -5,47 +5,35 @@ def translate_text(text, target_lang, preserve_names=False):
     if not text.strip():
         return "Error: Input text is empty."
 
+    # Replace this with secure API key management (e.g., loading from an environment variable)
+    api_key = "AIzaSyBCaB5edK3u7vKzsGC6owljSEosKXXnY4I"
     api_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
-    # Replace with your actual API key securely loaded (e.g., from an environment variable)
-    api_key = "AIzaSyDm6Sea886eqCLV5tVhXFryuHNDrEczeJI"
     params = {"key": api_key}
 
-    # Build prompt instructions with very strict formatting requirements:
-    # 1. Exactly preserve newline structure and formatting.
-    # 2. Ensure that the output contains one translated line per input line.
-    # 3. Do not add any extra explanation or commentary.
-    # 4. Preserve proper names if requested.
+    # When target language is English, we want romanization (i.e. transliteration) of Telugu text.
     if target_lang.lower() in ["en", "eng", "english"]:
         prompt_text = (
-            "Transliterate the following Telugu text into Latin script (romanized) "
-            "ensuring you preserve the exact line breaks and formatting. Each output "
-            "line must directly correspond to each input line without mixing lines. "
-            "Do not provide any extra explanation or commentary.\n\n" 
+            "Transliterate the following Telugu text into a Latin (romanized) form. "
+            "Ensure that the original phonetics are preserved and output only the romanized text, line-by-line exactly as is.\n\n"
             + text
         )
     elif target_lang.lower() in ["hi", "hindi"]:
         prompt_text = (
-            "Translate the following Telugu text into Hindi while strictly preserving "
-            "the original newline breaks and formatting. Each output line must be a direct "
-            "translation of the corresponding input line. Do not mix or combine lines, "
-            "and provide no additional commentary. If there are proper names (for example, "
-            "'Nenu'), leave them unchanged.\n\n" 
+            "Translate the following Telugu text into Hindi without any explanation. "
+            "Output only the translated text. If there are proper names like 'Nenu', leave them unchanged.\n\n"
             + text
         )
     else:
+        # For any other target language, perform a full translation from Telugu.
         prompt_text = (
-            f"Translate the following Telugu text into {target_lang} while strictly preserving "
-            "the original newline breaks and formatting. Each output line must be a direct "
-            "translation of the corresponding input line without mixing or combining lines. "
-            "Do not add any extra commentary or explanation.\n\n" 
-            + text
+            f"Translate the following Telugu text into {target_lang} without any explanation. "
+            "Output only the translated text exactly line-by-line.\n\n" + text
         )
 
-    # Append instruction to preserve proper names if the flag is set.
     if preserve_names:
         prompt_text += "\n\nDo not translate proper names; preserve them exactly as they appear."
 
-    # Append a unique token to the prompt to ensure a fresh request each time.
+    # Append a unique token based on the current time to force a fresh translation on every request.
     prompt_text += f"\n\nUniqueRef: {time.time()}"
 
     payload = {
@@ -55,63 +43,60 @@ def translate_text(text, target_lang, preserve_names=False):
     }
     headers = {"Content-Type": "application/json"}
 
-    # Function to send the API request.
     def send_request():
         return requests.post(api_url, params=params, json=payload, headers=headers)
 
     try:
         response = send_request()
-        # If not 200, wait a moment and try one more time in case of a transient error.
         if response.status_code != 200:
+            # Retry once after a short pause
             time.sleep(1)
             response = send_request()
 
-        # Debug logging: print the full API response (remove or secure in production)
-        print("Full API response:", response.json())
-
         if response.status_code == 200:
             data = response.json()
-            if "candidates" in data and data["candidates"]:
-                candidate = data["candidates"][0]
-                content = candidate.get("content", {})
-                parts = content.get("parts", [])
+            candidates = data.get("candidates")
+            if candidates:
+                parts = candidates[0].get("content", {}).get("parts", [])
                 if parts and parts[0].get("text"):
-                    translated = parts[0]["text"].strip()
-                    return translated if translated else "Error: Translation output field is empty."
-                else:
-                    return "Error: Unexpected response structure—no text found."
-            else:
-                return "Error: Translation candidate not found in response."
+                    return parts[0]["text"].strip()
+                return "Error: Unexpected response structure—no text found."
+            return "Error: Translation candidate not found in response."
         else:
             return f"Translation API error: {response.status_code} - {response.text}"
     except Exception as e:
         return f"Error during translation: {str(e)}"
 
-
 if __name__ == "__main__":
     regional_text = (
-        "Nenu Naa Illu Naa Inti Vaarandaru\n"
-        "Maanaka Sthuthinchedamu (2)\n"
-        "Nee Kanupaapa Vale Nannu Kaachi\n"
-        "Nenu Chedaraka Mosaavu Sthothram (2)\n"
-        "Ebinejare Ebinejare – Intha Kaalam Kaachithive\n"
-        "Ebinejare Ebinejare – Naa Thoduvai Nadachithive (2)\n"
-        "Sthothram Sthothram Sthothram – Kanupaapaga Kaachithivi Sthothram\n"
-        "Sthothram Sthothram Sthothram – Kougililo Daachithivi Sthothram         ||Nenu||\n\n"
-        "Edaarilo Unna Naa Jeevithamunu\n"
-        "Melutho Nimpithive (2)\n"
-        "Oka Keedaina Dari Cheraka Nannu\n"
-        "Thandrigaa Kaachaavu Sthothram (2)          ||Ebinejare||\n\n"
-        "Niraashatho Unna Naa Heena Brathukunu\n"
-        "Nee Krupatho Nimpithive (2)\n"
-        "Neevu Choopina Premanu Paadagaa\n"
-        "Padamulu Saripovu Thandri (2)          ||Ebinejare||\n\n"
-        "Gnaanula Madhyalo Nanu Pilachina Nee Pilupe\n"
-        "Aascharyamaascharyame (2)\n"
-        "Nee Paathranu Kaane Kaanu\n"
-        "Kevalamu Nee Krupaye Sthothram (2)          ||Ebinejare||"
+        "ఆరాధన స్తుతి ఆరాధన (3)\n"
+        "నీవంటి వారు ఒక్కరును లేరు\n"
+        "నీవే అతి శ్రేష్టుడా\n"
+        "దూత గణములు నిత్యము కొలిచే\n"
+        "నీవే పరిశుద్దుడా\n"
+        "నిన్నా నేడు మారని         ||ఆరాధన||\n\n"
+        "అబ్రహాము ఇస్సాకును\n"
+        "బలి ఇచ్చినారాధన\n"
+        "రాళ్ళతో చంపబడిన\n"
+        "స్తెఫను వలె ఆరాధన (2)\n\n"
+        "ఆరాధన స్తుతి ఆరాధన (2)\n"
+        "పదివేలలోన అతి సుందరుడా\n"
+        "నీకే ఆరాధన\n"
+        "ఇహ పరములోన ఆకాంక్షనీయుడా\n"
+        "నీకు సాటెవ్వరు\n"
+        "నిన్నా నేడు మారని        ||ఆరాధన||\n\n"
+        "దానియేలు సింహపు బోనులో\n"
+        "చేసిన ఆరాధన\n"
+        "వీధులలో నాట్యమాడిన\n"
+        "దావీదు ఆరాధన (2)\n\n"
+        "ఆరాధన స్తుతి ఆరాధన (2)\n"
+        "నీవంటి వారు ఒక్కరును లేరు\n"
+        "నీవే అతి శ్రేష్టుడా\n"
+        "దూత గణములు నిత్యము కొలిచే\n"
+        "నీవే పరిశుద్దుడా\n"
+        "నిన్నా నేడు మారని        ||ఆరాధన||"
     )
-    target_language = "hi"
+    target_language = "en"   # Use "en" for romanized transliteration
     translation = translate_text(regional_text, target_language, preserve_names=True)
     print("Translated Output:")
     print(translation)

@@ -1,29 +1,27 @@
+import os
 from flask import Flask, request, render_template, jsonify, send_file
-from flask_cors import CORS
-from translator import translate_preserving_structure
+from translator import translate_text
 import io
 from docx import Document
-import logging
 
-app = Flask(__name__,
-            template_folder="../frontend/templates",
-            static_folder="../frontend/static")
-CORS(app)
+# Set up directories for templates and static files
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TEMPLATE_DIR = os.path.join(BASE_DIR, "../frontend/templates")
+STATIC_DIR = os.path.join(BASE_DIR, "../frontend/static")
 
-logging.basicConfig(level=logging.INFO,
-                    format="%(asctime)s [%(levelname)s] %(message)s")
+app = Flask(__name__, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html")  # Ensure index.html is in the templates directory
 
 @app.route("/main")
 def main_page():
-    return render_template("main.html")
+    return render_template("main.html")  # Ensure main.html is in the templates directory
 
 @app.route("/export", methods=["POST"])
 def export_lyrics():
-    merged_lyrics = request.json.get("mergedLyrics", "")
+    merged_lyrics = request.json.get("mergeLyrics", "")
     if not merged_lyrics:
         return jsonify({"error": "No lyrics to export."}), 400
 
@@ -31,11 +29,11 @@ def export_lyrics():
     for line in merged_lyrics.splitlines():
         document.add_paragraph(line)
 
-    file_stream = io.BytesIO()
-    document.save(file_stream)
-    file_stream.seek(0)
+    f = io.BytesIO()
+    document.save(f)
+    f.seek(0)
     return send_file(
-        file_stream,
+        f,
         as_attachment=True,
         download_name="merged_lyrics.docx",
         mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -43,19 +41,16 @@ def export_lyrics():
 
 @app.route("/translate", methods=["POST"])
 def translate_route():
-    data = request.get_json()
-    source_text = data.get("text", "")
-    target_lang = data.get("targetLang", "te")  # Default to Telugu if none provided
+    data = request.json
+    source_text = data.get("text", "").strip()
+    target_lang = data.get("targetLang", "en")  # Default target language is English
 
-    if not source_text.strip():
+    if not source_text:
         return jsonify({"error": "Text is required for translation."}), 400
 
-    try:
-        translation = translate_preserving_structure(source_text, target_lang)
-        return jsonify({"translation": translation})
-    except Exception as e:
-        logging.exception("Translation error")
-        return jsonify({"error": "Translation failed.", "details": str(e)}), 500
+    translation = translate_text(source_text, target_lang)
+    return jsonify({"translation": translation})
 
 if __name__ == "__main__":
+    print("Starting Flask server on 0.0.0.0:5000")
     app.run(debug=True, host="0.0.0.0", port=5000)
