@@ -1,12 +1,18 @@
 import time
 import requests
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from the .env file
+load_dotenv()
+
 
 def translate_text(text, target_lang, preserve_names=False):
     if not text.strip():
         return "Error: Input text is empty."
 
     # Replace this with secure API key management (e.g., loading from an environment variable)
-    api_key = "AIzaSyBCaB5edK3u7vKzsGC6owljSEosKXXnY4I"
+    api_key = os.getenv("GENERATIVE_LANGUAGE_API_KEY")
     api_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
     params = {"key": api_key}
 
